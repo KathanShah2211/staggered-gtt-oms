@@ -1,0 +1,25 @@
+# Staggered GTT OMS — Python dependencies
+# Install with: pip install -r requirements.txt
+
+# ── ICICI Direct Breeze API SDK ──────────────────────────────────────────────
+breeze-connect>=1.0.69
+
+# ── UI Framework ─────────────────────────────────────────────────────────────
+customtkinter>=5.2.2
+
+# ── Encryption (Fernet / PBKDF2HMAC) ─────────────────────────────────────────
+cryptography>=42.0.0
+
+# ── Packaging (build the Windows .exe) ───────────────────────────────────────
+pyinstaller>=6.3.0
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+# pandas is required by breeze-connect for the security master CSV download
+pandas>=2.0.0
+
+# ── AI / ML Features ──────────────────────────────────────────────────────────
+google-generativeai>=0.8.0    # Google Gemini API
+ta>=0.11.0                # Technical analysis indicators (RSI, MACD, ATR, BB …)
+numpy>=1.26.0             # Numerical computing (ta dependency)
+newsapi-python>=0.2.7     # NewsAPI.org headlines
+requests>=2.31.0          # HTTP requests (newsapi + fallback)
