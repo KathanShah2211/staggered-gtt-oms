@@ -60,6 +60,12 @@ def create_session(
     ------
     BreezeAPIError on any connection or authentication failure.
     """
+    if app_key == "MOCK":
+        from core.mock_broker import MockBreeze
+        breeze = MockBreeze(api_key=app_key)
+        breeze.generate_session(secret_key=secret_key, api_session=session_token)
+        return breeze
+
     if BreezeConnect is None:
         raise BreezeAPIError(
             "breeze-connect SDK is not installed. "

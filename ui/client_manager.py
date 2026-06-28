@@ -76,12 +76,34 @@ class ClientManagerPanel(ctk.CTkFrame):
                                        text_color=DANGER)
         self._form_msg.pack(pady=(8, 0))
 
+        btn_row = ctk.CTkFrame(inner, fg_color="transparent")
+        btn_row.pack(fill="x", pady=(12, 0))
+        btn_row.grid_columnconfigure(0, weight=1)
+        btn_row.grid_columnconfigure(1, weight=1)
+
         ctk.CTkButton(
-            inner, text="💾  Save Client", height=44,
+            btn_row, text="💾 Save", height=38,
             fg_color=ACCENT, hover_color=ACCENT_HOVER,
-            text_color=TEXT_BRIGHT, font=font(13, "bold"), corner_radius=10,
+            text_color=TEXT_BRIGHT, font=font(12, "bold"), corner_radius=8,
             command=self._save,
-        ).pack(fill="x", pady=(12, 0))
+        ).grid(row=0, column=0, padx=(0, 4), sticky="ew")
+        
+        ctk.CTkButton(
+            btn_row, text="✨ Mock Account", height=38,
+            fg_color=SUCCESS_DIM, hover_color=SUCCESS,
+            text_color=TEXT_BRIGHT, font=font(12, "bold"), corner_radius=8,
+            command=self._add_mock_account,
+        ).grid(row=0, column=1, padx=(4, 0), sticky="ew")
+
+    def _add_mock_account(self) -> None:
+        try:
+            database.add_client("Test Account (Mock)", "MOCK", "MOCK_SECRET")
+            self._form_msg.configure(text="✅  Mock account added.", text_color=SUCCESS)
+            self._refresh_table()
+        except sqlite3.IntegrityError:
+            self._form_msg.configure(text="Mock account already exists.", text_color=WARN)
+        except Exception as exc:
+            self._form_msg.configure(text=str(exc), text_color=DANGER)
 
     # ── Table ─────────────────────────────────────────────────────
 

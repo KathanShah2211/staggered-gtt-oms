@@ -615,6 +615,55 @@ def test_connection() -> tuple[bool, str]:
     except Exception as e:
         return False, f"Unexpected error: {e}"
 
+def generate_smart_config(
+    stock_code: str,
+    current_price: float,
+    atr: float,
+    state=None,
+) -> dict:
+    """
+    Generate Smart Config for GTT orders based on stock volatility.
+    Uses MODEL_FAST (Gemini 3.5 Flash).
+    Returns dict with price_gap and limit_offset.
+    """
+    model = get_model_for_function("suggest_exit", state)
+
+    system = """You are an expert quantitative trader. Calculate optimal Staggered GTT parameters based on price and ATR. Return ONLY valid JSON. No markdown, no explanation."""
+
+    prompt = f"""Calculate optimal GTT parameters:
+    
+Stock: {stock_code}
+Current Price: ₹{current_price}
+ATR (Volatility): ₹{atr}
+
+Calculate:
+1. price_gap: Approx 50% to 100% of the ATR depending on if it's a high or low priced stock.
+2. limit_offset: A safe slippage buffer (approx 10% of the price_gap).
+
+Return ONLY this JSON:
+{{
+    "price_gap": <float>,
+    "limit_offset": <float>
+}}"""
+
+    _DEFAULT = {
+        "price_gap": round(current_price * 0.01, 2) if current_price else 1.0,
+        "limit_offset": 0.1,
+    }
+
+    try:
+        raw = call_gemini(prompt, system, max_tokens=100, model=model, temperature=0.1)
+        clean = raw.strip()
+        if clean.startswith("```"):
+            clean = clean.split("```")[1]
+            if clean.startswith("json"):
+                clean = clean[4:]
+        clean = clean.strip()
+        result = json.loads(clean)
+        return result
+    except Exception as e:
+        log.error("generate_smart_config failed: %s", e)
+        return _DEFAULT
 
 # ── EXCEPTION CLASS ──────────────────────────────────────────
 

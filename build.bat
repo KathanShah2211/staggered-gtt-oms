@@ -47,6 +47,11 @@ pyinstaller ^
     --hidden-import "ui.preview_matrix" ^
     --hidden-import "ui.execution_panel" ^
     --hidden-import "ui.logs_panel" ^
+    --hidden-import "ui.dashboard_panel" ^
+    --hidden-import "ui.analysis_panel" ^
+    --hidden-import "ui.suggest_panel" ^
+    --hidden-import "ui.sentiment_panel" ^
+    --hidden-import "ui.ai_settings_panel" ^
     --hidden-import "utils.logger" ^
     --collect-data "customtkinter" ^
     main.py

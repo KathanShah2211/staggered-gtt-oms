@@ -60,6 +60,7 @@ def calculate_orders(
     price_gap:     float,
     limit_offset:  float,
     action:        str = "sell",
+    algorithm:     str = "LINEAR",
 ) -> list[GTTOrder]:
     """
     Compute the full list of GTTOrder objects for the staggered plan.
@@ -69,12 +70,13 @@ def calculate_orders(
     stock_code    : BSE/NSE stock symbol (e.g. "RELIANCE").
     exchange_code : "NSE" or "BSE".
     total_shares  : Total number of shares to sell/buy via GTT.
-    batch_size    : Shares per GTT order.
+    batch_size    : Base shares per GTT order.
     base_trigger  : Trigger price for the first batch (₹).
     price_gap     : Price increment between consecutive batches (₹).
     limit_offset  : Amount subtracted from trigger to get limit price (₹).
                     Use a positive value for a sell buffer below trigger.
     action        : "sell" or "buy" (default "sell").
+    algorithm     : "LINEAR", "PYRAMID", or "MARTINGALE".
 
     Returns
     -------
@@ -90,10 +92,25 @@ def calculate_orders(
         raise ValueError("base_trigger must be a positive price.")
 
     orders: list[GTTOrder] = []
-    num_full_batches = total_shares // batch_size
-    remainder = total_shares % batch_size
+    
+    batch_sizes = []
+    shares_remaining = total_shares
+    current_multiplier = 1
+    
+    while shares_remaining > 0:
+        current_batch = batch_size * current_multiplier
+        if current_batch > shares_remaining:
+            current_batch = shares_remaining
+            
+        batch_sizes.append(current_batch)
+        shares_remaining -= current_batch
+        
+        if algorithm.upper() == "PYRAMID":
+            current_multiplier += 1
+        elif algorithm.upper() == "MARTINGALE":
+            current_multiplier *= 2
 
-    for i in range(num_full_batches):
+    for i, qty in enumerate(batch_sizes):
         trigger = round(base_trigger + i * price_gap, 2)
         limit   = round(trigger - limit_offset, 2)
         orders.append(GTTOrder(
@@ -102,22 +119,7 @@ def calculate_orders(
             exchange_code = exchange_code,
             trigger_price = trigger,
             limit_price   = limit,
-            quantity      = batch_size,
-            action        = action,
-        ))
-
-    # Partial remainder batch
-    if remainder > 0:
-        i = num_full_batches
-        trigger = round(base_trigger + i * price_gap, 2)
-        limit   = round(trigger - limit_offset, 2)
-        orders.append(GTTOrder(
-            batch_number  = i + 1,
-            stock_code    = stock_code,
-            exchange_code = exchange_code,
-            trigger_price = trigger,
-            limit_price   = limit,
-            quantity      = remainder,
+            quantity      = qty,
             action        = action,
         ))
 

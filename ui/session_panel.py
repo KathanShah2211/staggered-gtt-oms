@@ -63,8 +63,20 @@ class SessionPanel(ctk.CTkFrame):
         )
         self._dd.pack(fill="x", pady=(0, 24))
 
-        ctk.CTkLabel(inner, text="Daily Session Token", font=font(11, "bold"),
-                     text_color=TEXT_SECONDARY, anchor="w").pack(fill="x", pady=(0, 4))
+        lbl_frame = ctk.CTkFrame(inner, fg_color="transparent")
+        lbl_frame.pack(fill="x", pady=(0, 4))
+        
+        ctk.CTkLabel(lbl_frame, text="Daily Session Token", font=font(11, "bold"),
+                     text_color=TEXT_SECONDARY, anchor="w").pack(side="left")
+                     
+        self._auto_btn = ctk.CTkButton(
+            lbl_frame, text="1-Click Login (Auto)", width=120, height=24,
+            fg_color=ACCENT_SUBTLE, hover_color=ACCENT_GLOW,
+            text_color=ACCENT_LIGHT, font=font(10, "bold"), corner_radius=6,
+            command=self._auto_login
+        )
+        self._auto_btn.pack(side="right")
+        
         self._token_e = form_entry(inner, placeholder="Paste your API session token here", show="●")
         self._token_e.pack(fill="x", pady=(0, 16))
         self._token_e.bind("<Return>", lambda _: self._connect())
@@ -129,3 +141,31 @@ class SessionPanel(ctk.CTkFrame):
         self._state.holdings = []
         self._set_status("⚫  Disconnected.", TEXT_SECONDARY)
         self._app.update_connection_status(False)
+
+    def _auto_login(self) -> None:
+        client = self._client_var.get()
+        if "No clients" in client:
+            self._set_status("⚠️  Configure a client first.", WARN); return
+            
+        self._auto_btn.configure(state="disabled", text="Waiting...")
+        self._set_status("⏳  Please login in the opened browser window...", TEXT_SECONDARY)
+        
+        def _bg() -> None:
+            try:
+                ak, sk = database.get_client_keys(client)
+                if ak == "MOCK":
+                    token = "MOCK_SESSION_TOKEN_123"
+                else:
+                    from core.auth_automation import fetch_session_token
+                    token = fetch_session_token(ak)
+                
+                self.after(0, lambda: self._token_e.delete(0, 'end'))
+                self.after(0, lambda: self._token_e.insert(0, token))
+                self.after(0, self._connect)
+                
+            except Exception as e:
+                self.after(0, self._on_fail, str(e))
+            finally:
+                self.after(0, lambda: self._auto_btn.configure(state="normal", text="1-Click Login (Auto)"))
+                
+        threading.Thread(target=_bg, daemon=True).start()

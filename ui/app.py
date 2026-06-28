@@ -80,6 +80,7 @@ _NAV = [
     ("preview",  "👁️",   "Preview",       "Review order matrix"),
     ("execute",  "🚀",  "Execute",       "Place GTT orders"),
     ("logs",     "📋",  "Logs",          "Order history & export"),
+    ("dashboard","📈",  "Dashboard",     "Visual Analytics"),
     # ── AI Features ──────────────────────────────────────────────
     ("analysis",   "🧠",  "AI Analysis",   "Smart stock insights"),
     ("suggest",    "✨",  "AI Suggest",    "AI-powered GTT config"),
@@ -95,6 +96,7 @@ _PANEL_MAP = {
     "preview":   "ui.preview_matrix.PreviewMatrixPanel",
     "execute":   "ui.execution_panel.ExecutionPanel",
     "logs":      "ui.logs_panel.LogsPanel",
+    "dashboard": "ui.dashboard_panel.DashboardPanel",
     # ── AI panels ─────────────────────────────────────────────────
     "analysis":   "ui.analysis_panel.AnalysisPanel",
     "suggest":    "ui.suggest_panel.SuggestPanel",

@@ -23,3 +23,7 @@ ta>=0.11.0                # Technical analysis indicators (RSI, MACD, ATR, BB �
 numpy>=1.26.0             # Numerical computing (ta dependency)
 newsapi-python>=0.2.7     # NewsAPI.org headlines
 requests>=2.31.0          # HTTP requests (newsapi + fallback)
+
+# ── Analytics & Dashboard ────────────────────────────────────────────────────
+matplotlib>=3.8.0         # Charts and analytics dashboard
+playwright>=1.40.0        # Headless browser automation for auth
