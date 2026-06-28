@@ -38,13 +38,14 @@ Staggered GTT OMS lets you:
 
 | Feature | Detail |
 |---|---|
-| 🔐 Master Password | PBKDF2HMAC + Fernet AES-256 encryption |
+| 🔐 Local Encryption | PBKDF2HMAC + Fernet AES-256 for API Keys |
+| 🛡️ Zero Password Storage | Your ICICI password is NEVER stored. Login happens directly on ICICI's portal via a secure browser modal. |
 | 👤 Multi-Account | Unlimited encrypted client profiles |
-| 📊 Live Holdings | Real-time portfolio fetch from NSE |
-| ⚙ Staggered Math | Configurable batch size, price gap, limit offset |
+| 📊 Analytics Dashboard | Real-time portfolio pie charts & simulated success metrics |
+| 🪄 AI Auto-Fill | Gemini AI calculates optimal risk-based parameters using ATR & Volatility |
+| ⚙️ Dynamic Staggering | Linear, Pyramid, and Martingale scaling algorithms |
 | 👁 Preview Matrix | Read-only order review before execution |
-| 🚀 Execution | Background thread, abort button, live log console |
-| 📋 Logs | Filterable history with CSV export |
+| 🚀 1-Click Login | Automated token extraction using Playwright (No more copy-pasting!) |
 | 📁 Local Only | Zero cloud, zero data leaves your machine |
 
 ---
@@ -77,18 +78,17 @@ python main.py
 
 ---
 
-## 2. First Launch — Master Password Setup
+## 2. First Launch — Local App Security Setup
 
-On the very first launch, the app shows a **"Set Master Password"** screen:
+On the very first launch, the app shows a **"Set App Password"** screen:
 
 1. Enter a strong password (minimum 6 characters).
 2. Re-enter it to confirm.
 3. Click **"Set Password & Unlock"**.
 
-The password is **never stored**. Only a random cryptographic salt and an
-encrypted verification token are saved to `data/oms.db`.
+> 🛡️ **Highly Secure:** The password is **never stored**. Only a random cryptographic salt and an encrypted verification token are saved locally. This password is ONLY used to encrypt your ICICI API Keys on your local hard drive. 
 
-> ⚠️ **Important:** If you forget your Master Password, there is no recovery.
+> ⚠️ **Important:** If you forget your App Password, there is no recovery.
 > You will need to delete `data/oms.db` and start fresh (losing saved client credentials).
 
 On subsequent launches, enter your password in the Unlock screen.
@@ -108,34 +108,20 @@ After **5 consecutive wrong attempts**, the application closes automatically.
 
 ---
 
-## 4. Getting the Daily Session Token
+## 4. Getting the Daily Session Token (1-Click Login)
 
-ICICI Direct Breeze API requires a fresh session token every day.
+ICICI Direct Breeze API requires a fresh session token every day. We have built a fully automated 1-Click Login system using **Playwright**.
 
-### Method A — Browser (Recommended)
+### Steps to Connect:
+1. Make sure you have Playwright installed: `pip install playwright` and `playwright install chromium`
+2. Open the **Session** panel in the app.
+3. Select your saved account and click **1-Click Login (Auto)**.
+4. A secure Chromium browser window will open directly to the ICICI login page.
+5. **Insert your ICICI credentials.** (We DO NOT store your ICICI password to maintain maximum security trust!).
+6. Once you log in, the app automatically extracts the `apisession` token from the callback URL and connects your session seamlessly!
 
-1. Open this URL in your browser (replace `YOUR_APP_KEY` with your actual key):
-   ```
-   https://api.icicidirect.com/apiuser/login?api_key=YOUR_APP_KEY
-   ```
-2. Log in with your ICICI Direct credentials.
-3. After login you will be redirected to a URL like:
-   ```
-   http://localhost?apisession=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-   ```
-4. Copy the value after `apisession=` — this is your **Session Token**.
-
-### Method B — Using the Python SDK
-
-```python
-from breeze_connect import BreezeConnect
-breeze = BreezeConnect(api_key="YOUR_APP_KEY")
-print(breeze.get_customer_details_url())
-# Open the printed URL in a browser, login, copy the apisession value
-```
-
-> Session tokens expire at midnight IST. You must generate a new one each trading day.
-
+### Testing without an ICICI Account?
+You can use the built-in **Mock Broker**. Simply go to the Clients panel, click **✨ Mock Account**, and then log in using that account. The app will bypass the browser and connect you to a simulated local broker for risk-free testing!
 ---
 
 ## 5. IP Whitelisting on the ICICI API Portal
